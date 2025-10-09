@@ -51,7 +51,7 @@ export default function Home() {
               <Button type="submit">Đăng ký</Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              *Bạn có thể huỷ nhận email bất cứ lúc nào.
+              *Bạn có thể huỷ nhận email bất cứ lúc nào!.
             </p>
           </div>
 
