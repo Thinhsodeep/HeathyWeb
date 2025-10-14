@@ -1,0 +1,53 @@
+[
+  {
+    "id": "r001",
+    "name": "Cơm gạo lứt ức gà + rau",
+    "tags": ["eat-clean", "tăng-cơ"],
+    "ingredients": [
+      { "foodId": "f011", "grams": 150 },
+      { "foodId": "f001", "grams": 150 },
+      { "foodId": "f025", "grams": 80 }
+    ]
+  },
+  {
+    "id": "r002",
+    "name": "Yến mạch + sữa chua Hy Lạp + chuối",
+    "tags": ["bữa-sáng"],
+    "ingredients": [
+      { "foodId": "f014", "grams": 50 },
+      { "foodId": "f010", "grams": 150 },
+      { "foodId": "f023", "grams": 100 }
+    ]
+  },
+  {
+    "id": "r003",
+    "name": "Cá hồi áp chảo + khoai lang + bông cải",
+    "tags": ["ăn-lành-mạnh"],
+    "ingredients": [
+      { "foodId": "f005", "grams": 150 },
+      { "foodId": "f015", "grams": 150 },
+      { "foodId": "f025", "grams": 100 }
+    ]
+  },
+  {
+    "id": "r004",
+    "name": "Đậu phụ xào rau củ",
+    "tags": ["ăn-chay", "giảm-cân"],
+    "ingredients": [
+      { "foodId": "f018", "grams": 200 },
+      { "foodId": "f026", "grams": 100 },
+      { "foodId": "f027", "grams": 100 },
+      { "foodId": "f025", "grams": 80 }
+    ]
+  },
+  {
+    "id": "r005",
+    "name": "Bún tôm rau xanh",
+    "tags": ["nhanh-gọn"],
+    "ingredients": [
+      { "foodId": "f016", "grams": 180 },
+      { "foodId": "f007", "grams": 120 },
+      { "foodId": "f028", "grams": 60 }
+    ]
+  }
+]

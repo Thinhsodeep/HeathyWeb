@@ -1,5 +1,6 @@
 "use client";
 
+import { useSession, signOut } from "next-auth/react";
 import React, { useMemo, useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,13 +25,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import {
   Tooltip,
   TooltipContent,
@@ -58,7 +52,6 @@ import {
   Calculator,
   Send,
   Menu,
-  LogIn,
   Settings,
 } from "lucide-react";
 
@@ -143,7 +136,7 @@ const mealsCatalog = {
     { name: "Hạnh nhân 30g", calories: 170 },
     { name: "Táo + bơ đậu phộng", calories: 220 },
   ],
-};
+} as const;
 
 function suggestMealPlan(calTarget: number) {
   if (!calTarget) return [] as { time: string; item: string; cal: number }[];
@@ -259,6 +252,8 @@ function ChatSheet({ onAsk }: { onAsk: (q: string) => void }) {
 
 // ---------- Main Page ----------
 export default function NutritionAIApp() {
+  const { data: session } = useSession();
+
   const [sex, setSex] = useState<"male" | "female">("male");
   const [age, setAge] = useState<number>(24);
   const [height, setHeight] = useState<number>(170);
@@ -280,72 +275,17 @@ export default function NutritionAIApp() {
   );
   const cals = useMemo(() => targetCalories(tdee, goal), [tdee, goal]);
   const macros = useMemo(() => macroGrams(cals, goal), [cals, goal]);
-  const [plan, setPlan] = useState(() => suggestMealPlan(cals));
+  const [plan, setPlan] = useState<
+    { time: string; item: string; cal: number }[]
+  >([]);
 
   useEffect(() => {
     setPlan(suggestMealPlan(cals));
   }, [cals, goal]);
 
-  const LoginDialog = () => (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="rounded-xl">
-          <LogIn className="h-4 w-4 mr-2" /> Đăng nhập
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[420px]">
-        <DialogHeader>
-          <DialogTitle>Đăng nhập</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-3">
-          <div className="grid gap-1.5">
-            <Label>Email</Label>
-            <Input placeholder="you@example.com" />
-          </div>
-          <div className="grid gap-1.5">
-            <Label>Mật khẩu</Label>
-            <Input type="password" placeholder="••••••••" />
-          </div>
-          <Button className="w-full rounded-xl">Tiếp tục</Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-
   return (
     <TooltipProvider>
       <div className="min-h-screen bg-gradient-to-b from-background to-muted/40">
-        {/* Topbar */}
-        <header className="sticky top-0 z-30 backdrop-blur supports-[backdrop-filter]:bg-background/70 border-b">
-          <div className="container mx-auto px-4 py-3 flex items-center gap-3">
-            <Button variant="ghost" size="icon" className="rounded-xl">
-              <Menu className="h-5 w-5" />
-            </Button>
-            <div className="flex items-center gap-2 font-semibold tracking-tight">
-              <Salad className="h-5 w-5" /> Nutrition AI
-              <Badge variant="secondary" className="ml-1">
-                Beta
-              </Badge>
-            </div>
-            <div className="ml-auto flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                className="rounded-xl"
-                aria-label="Settings"
-              >
-                <Settings className="h-4 w-4" />
-              </Button>
-              <LoginDialog />
-              <ChatSheet
-                onAsk={() => {
-                  /* hook to backend */
-                }}
-              />
-            </div>
-          </div>
-        </header>
-
         {/* Hero */}
         <section className="container mx-auto px-4 py-6">
           <motion.div
@@ -450,7 +390,8 @@ export default function NutritionAIApp() {
                 </div>
 
                 <Button className="w-full rounded-xl" variant="default">
-                  <Calculator className="h-4 w-4 mr-2" /> Tính toán
+                  <Calculator className="h-4 w-4 mr-2" />
+                  Tính toán
                 </Button>
               </CardContent>
             </Card>
@@ -668,8 +609,7 @@ export default function NutritionAIApp() {
         <footer className="py-8 border-t">
           <div className="container mx-auto px-4 text-xs text-muted-foreground flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Salad className="h-4 w-4" /> Nutrition AI • Demo giao diện
-              (shadcn/ui)
+              <Salad className="h-4 w-4" /> Nutrition AI
             </div>
             <div>© {new Date().getFullYear()} – Đồ án Web Dinh Dưỡng</div>
           </div>

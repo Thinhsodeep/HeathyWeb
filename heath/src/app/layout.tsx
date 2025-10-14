@@ -1,17 +1,11 @@
-import type { Metadata } from "next";
 import "./globals.css";
-import { Geist, Geist_Mono } from "next/font/google";
-import AppNav from "./_nav";
-
-const geistSans = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
-const geistMono = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-geist-mono",
-});
+import type { Metadata } from "next";
+import Providers from "./providers";
+import AppNav from "./_nav"; // thanh menu bạn đã đặt ở app/_nav.tsx
 
 export const metadata: Metadata = {
   title: "Nutrition AI",
-  description: "Tư vấn dinh dưỡng cá nhân bằng AI",
+  description: "Ứng dụng tính dinh dưỡng, lập thực đơn thông minh",
 };
 
 export default function RootLayout({
@@ -20,13 +14,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="vi" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body>
-        <AppNav />
-        <main className="container mx-auto px-4 py-6">{children}</main>
-        <footer className="border-t py-6 text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Nutrition AI – Demo đồ án
-        </footer>
+    <html lang="vi">
+      <body className="bg-background text-foreground min-h-screen">
+        <Providers>
+          {/* Nav hiển thị ở mọi trang */}
+          <AppNav />
+          <main>{children}</main>
+        </Providers>
       </body>
     </html>
   );
