@@ -1,7 +1,9 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import Providers from "./providers";
-import AppNav from "./_nav"; // thanh menu bạn đã đặt ở app/_nav.tsx
+import AppNav from "./_nav";
+import ChatFloating from "@/components/ChatFloating";
+import Chatbox from "@/components/chatbox";
 
 export const metadata: Metadata = {
   title: "Nutrition AI",
@@ -14,13 +16,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="vi">
-      <body className="bg-background text-foreground min-h-screen">
+    <html lang="vi" suppressHydrationWarning>
+      <body className="min-h-screen bg-background text-foreground transition-colors duration-500">
         <Providers>
-          {/* Nav hiển thị ở mọi trang */}
           <AppNav />
           <main>{children}</main>
         </Providers>
+        <Chatbox />
       </body>
     </html>
   );

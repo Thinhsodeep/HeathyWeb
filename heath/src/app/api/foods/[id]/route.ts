@@ -1,13 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
 import { connectDB } from "@/lib/db";
 import { Food } from "@/lib/models/Food";
 
-// GET /api/foods/:id
+type Params = { id: string };
+
+// GET /api/foods/:id  (ai cũng xem được)
 export async function GET(
   _req: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<Params> }
 ) {
-  const { id } = await context.params; // 🔑 quan trọng: await params
+  const { id } = await context.params;
   await connectDB();
 
   const item = await Food.findById(id);
@@ -17,12 +21,18 @@ export async function GET(
   return NextResponse.json(item);
 }
 
-// PUT /api/foods/:id
+// PUT /api/foods/:id  (chỉ admin)
 export async function PUT(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<Params> }
 ) {
-  const { id } = await context.params; // 🔑
+  const session = await getServerSession(authOptions);
+  const role = session?.user?.role;
+  if (role !== "admin") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const { id } = await context.params;
   const payload = await req.json();
   await connectDB();
 
@@ -36,12 +46,18 @@ export async function PUT(
   return NextResponse.json(updated);
 }
 
-// DELETE /api/foods/:id
+// DELETE /api/foods/:id  (chỉ admin)
 export async function DELETE(
   _req: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<Params> }
 ) {
-  const { id } = await context.params; // 🔑
+  const session = await getServerSession(authOptions);
+  const role = session?.user?.role;
+  if (role !== "admin") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const { id } = await context.params;
   await connectDB();
 
   const deleted = await Food.findByIdAndDelete(id);

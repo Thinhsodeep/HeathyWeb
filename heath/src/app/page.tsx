@@ -1,620 +1,368 @@
+// src/app/page.tsx
 "use client";
 
-import { useSession, signOut } from "next-auth/react";
-import React, { useMemo, useState, useRef, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip as RCTooltip,
-  ResponsiveContainer,
-  Legend,
-} from "recharts";
-import {
-  Brain,
-  Salad,
-  LineChart as LineChartIcon,
-  MessageCircle,
-  Sparkles,
-  User,
   Calculator,
-  Send,
-  Menu,
-  Settings,
+  UtensilsCrossed,
+  MessageCircle,
+  BarChart3,
+  Salad,
+  CheckCircle2,
+  Star,
 } from "lucide-react";
 
-// ---------- Utils ----------
-function calcBMI(kg: number, cm: number) {
-  const m = cm / 100;
-  if (!kg || !cm) return { value: 0, label: "—" } as const;
-  const bmi = +(kg / (m * m)).toFixed(1);
-  let label = "Bình thường";
-  if (bmi < 18.5) label = "Thiếu cân";
-  else if (bmi < 23) label = "Bình thường"; // ngưỡng châu Á
-  else if (bmi < 27.5) label = "Thừa cân";
-  else label = "Béo phì";
-  return { value: bmi, label } as const;
-}
-
-function calcBMR(kg: number, cm: number, age: number, sex: "male" | "female") {
-  if (!kg || !cm || !age || !sex) return 0;
-  return Math.round(
-    10 * kg + 6.25 * cm - 5 * age + (sex === "male" ? 5 : -161)
-  );
-}
-
-function activityFactor(level: string) {
-  switch (level) {
-    case "light":
-      return 1.375;
-    case "moderate":
-      return 1.55;
-    case "active":
-      return 1.725;
-    case "very":
-      return 1.9;
-    default:
-      return 1.2;
-  }
-}
-
-function targetCalories(tdee: number, goal: string) {
-  if (!tdee) return 0;
-  if (goal === "lose") return Math.round(tdee * 0.85);
-  if (goal === "gain") return Math.round(tdee * 1.15);
-  return Math.round(tdee);
-}
-
-function macroSplit(goal: string) {
-  if (goal === "lose") return { p: 0.35, c: 0.35, f: 0.3 };
-  if (goal === "gain") return { p: 0.25, c: 0.5, f: 0.25 };
-  return { p: 0.3, c: 0.4, f: 0.3 };
-}
-
-function macroGrams(cal: number, goal: string) {
-  const { p, c, f } = macroSplit(goal);
-  return {
-    protein: Math.round((cal * p) / 4),
-    carbs: Math.round((cal * c) / 4),
-    fat: Math.round((cal * f) / 9),
-  } as const;
-}
-
-const mockWeightData = [
-  { date: "Tuần 1", weight: 72, calories: 2200 },
-  { date: "Tuần 2", weight: 71.6, calories: 2100 },
-  { date: "Tuần 3", weight: 71.2, calories: 2050 },
-  { date: "Tuần 4", weight: 70.9, calories: 2000 },
-];
-
-const mealsCatalog = {
-  breakfast: [
-    { name: "Yến mạch + sữa chua Hy Lạp + chuối", calories: 400 },
-    { name: "Bánh mì ngũ cốc + trứng ốp la + salad", calories: 420 },
-  ],
-  lunch: [
-    { name: "Cơm gạo lứt + ức gà áp chảo + rau củ", calories: 550 },
-    { name: "Bún thịt nạc + rau sống", calories: 520 },
-  ],
-  dinner: [
-    { name: "Cá hồi áp chảo + khoai lang + súp lơ", calories: 600 },
-    { name: "Đậu phụ sốt cà + miến lứt + rau xanh", calories: 520 },
-  ],
-  snack: [
-    { name: "Hạnh nhân 30g", calories: 170 },
-    { name: "Táo + bơ đậu phộng", calories: 220 },
-  ],
-} as const;
-
-function suggestMealPlan(calTarget: number) {
-  if (!calTarget) return [] as { time: string; item: string; cal: number }[];
-  const split = {
-    breakfast: 0.25,
-    lunch: 0.35,
-    dinner: 0.3,
-    snack: 0.1,
-  } as const;
-  return (Object.keys(split) as (keyof typeof split)[]).map((k) => {
-    const bucket = mealsCatalog[k];
-    const pick = bucket[Math.floor(Math.random() * bucket.length)];
-    return { time: k, item: pick.name, cal: Math.round(calTarget * split[k]) };
-  });
-}
-
-// ---------- Chat Sheet ----------
-interface Message {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-}
-
-function ChatSheet({ onAsk }: { onAsk: (q: string) => void }) {
-  const [open, setOpen] = useState(false);
-  const [input, setInput] = useState("");
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "m0",
-      role: "assistant",
-      content:
-        "Xin chào! Mình là AI tư vấn dinh dưỡng. Bạn muốn đạt mục tiêu gì?",
-    },
-  ]);
-  const endRef = useRef<HTMLDivElement | null>(null);
-  useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
+export default function HomePage() {
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button
-          size="icon"
-          className="rounded-2xl shadow"
-          aria-label="Open chat"
-        >
-          <MessageCircle className="h-5 w-5" />
-        </Button>
-      </SheetTrigger>
-      <SheetContent
-        side="right"
-        className="w-full sm:w-[420px] p-0 flex flex-col"
-      >
-        <SheetHeader className="px-4 py-3 border-b">
-          <SheetTitle className="flex items-center gap-2">
-            <Brain className="h-5 w-5" /> Tư vấn dinh dưỡng AI
-          </SheetTitle>
-        </SheetHeader>
-        <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-muted/30">
-          {messages.map((m) => (
-            <div
-              key={m.id}
-              className={`max-w-[85%] md:max-w-[75%] px-3 py-2 rounded-2xl text-sm shadow ${
-                m.role === "assistant"
-                  ? "bg-background"
-                  : "bg-primary text-primary-foreground ml-auto"
-              }`}
-            >
-              {m.content}
-            </div>
-          ))}
-          <div ref={endRef} />
-        </div>
-        <form
-          className="p-3 border-t flex gap-2"
-          onSubmit={(e) => {
-            e.preventDefault();
-            const q = input.trim();
-            if (!q) return;
-            setMessages((prev) => [
-              ...prev,
-              { id: crypto.randomUUID(), role: "user", content: q },
-            ]);
-            setInput("");
-            onAsk(q);
-            setTimeout(() => {
-              setMessages((prev) => [
-                ...prev,
-                {
-                  id: crypto.randomUUID(),
-                  role: "assistant",
-                  content:
-                    "Mẹo: Ưu tiên thực phẩm giàu đạm (ức gà, cá, đậu), rau xanh và ngũ cốc nguyên hạt.",
-                },
-              ]);
-            }, 400);
-          }}
-        >
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Hỏi về bữa ăn, calo, thực đơn…"
+    <div className="min-h-screen bg-background text-foreground">
+      {/* HERO */}
+      <section className="relative overflow-hidden">
+        {/* Ảnh nền */}
+        <div className="absolute inset-0 -z-10">
+          <Image
+            src="/hero.jpg"
+            alt="Healthy lifestyle"
+            fill
+            priority
+            className="object-cover"
           />
-          <Button type="submit" aria-label="Send">
-            <Send className="h-4 w-4" />
-          </Button>
-        </form>
-      </SheetContent>
-    </Sheet>
-  );
-}
 
-// ---------- Main Page ----------
-export default function NutritionAIApp() {
-  const { data: session } = useSession();
+          {/* ✅ Overlay màu xám nhẹ (light mode) và tối vừa (dark mode) */}
+          <div className="absolute inset-0 bg-gradient-to-b from-gray-200/80 via-gray-100/70 to-background dark:from-black/60 dark:via-gray-900/50 dark:to-background" />
+        </div>
 
-  const [sex, setSex] = useState<"male" | "female">("male");
-  const [age, setAge] = useState<number>(24);
-  const [height, setHeight] = useState<number>(170);
-  const [weight, setWeight] = useState<number>(70);
-  const [activity, setActivity] = useState<string>("light");
-  const [goal, setGoal] = useState<string>("lose");
-
-  const { value: bmi, label: bmiLabel } = useMemo(
-    () => calcBMI(weight, height),
-    [weight, height]
-  );
-  const bmr = useMemo(
-    () => calcBMR(weight, height, age, sex),
-    [weight, height, age, sex]
-  );
-  const tdee = useMemo(
-    () => Math.round(bmr * activityFactor(activity)),
-    [bmr, activity]
-  );
-  const cals = useMemo(() => targetCalories(tdee, goal), [tdee, goal]);
-  const macros = useMemo(() => macroGrams(cals, goal), [cals, goal]);
-  const [plan, setPlan] = useState<
-    { time: string; item: string; cal: number }[]
-  >([]);
-
-  useEffect(() => {
-    setPlan(suggestMealPlan(cals));
-  }, [cals, goal]);
-
-  return (
-    <TooltipProvider>
-      <div className="min-h-screen bg-gradient-to-b from-background to-muted/40">
-        {/* Hero */}
-        <section className="container mx-auto px-4 py-6">
+        {/* Nội dung căn giữa */}
+        <div className="container mx-auto px-4 flex flex-col items-center justify-center text-center min-h-[90vh] py-20">
           <motion.div
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="grid md:grid-cols-3 gap-4"
+            transition={{ duration: 0.6 }}
+            className="max-w-3xl flex flex-col items-center gap-5"
           >
-            {/* Left: inputs */}
-            <Card className="md:col-span-1 rounded-2xl shadow-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" /> Thông tin cá nhân
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-1.5">
-                  <Label>Giới tính</Label>
-                  <RadioGroup
-                    defaultValue={sex}
-                    onValueChange={(v) => setSex(v as "male" | "female")}
-                    className="flex items-center gap-4"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="male" id="male" />
-                      <Label htmlFor="male">Nam</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="female" id="female" />
-                      <Label htmlFor="female">Nữ</Label>
-                    </div>
-                  </RadioGroup>
-                </div>
+            {/* Logo / Badge */}
+            <Badge className="rounded-full mb-2 px-4 py-1 text-sm">
+              HealthyFit AI
+            </Badge>
 
-                <div className="grid md:grid-cols-3 gap-3">
-                  <div className="grid gap-1.5">
-                    <Label>Tuổi</Label>
-                    <Input
-                      type="number"
-                      value={age}
-                      onChange={(e) => setAge(+e.target.value)}
-                      min={5}
-                      className="rounded-xl"
-                    />
-                  </div>
-                  <div className="grid gap-1.5">
-                    <Label>Chiều cao (cm)</Label>
-                    <Input
-                      type="number"
-                      value={height}
-                      onChange={(e) => setHeight(+e.target.value)}
-                      min={80}
-                      className="rounded-xl"
-                    />
-                  </div>
-                  <div className="grid gap-1.5">
-                    <Label>Cân nặng (kg)</Label>
-                    <Input
-                      type="number"
-                      value={weight}
-                      onChange={(e) => setWeight(+e.target.value)}
-                      min={20}
-                      className="rounded-xl"
-                    />
-                  </div>
-                </div>
+            {/* Tiêu đề */}
+            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight text-foreground drop-shadow-[0_1px_0_rgba(0,0,0,0.06)] dark:text-white">
+              Dinh dưỡng Thông minh, Sống Khỏe Mỗi Ngày.
+            </h1>
 
-                <div className="grid gap-1.5">
-                  <Label>Mức vận động</Label>
-                  <Select value={activity} onValueChange={setActivity}>
-                    <SelectTrigger className="rounded-xl">
-                      <SelectValue placeholder="Chọn" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="sedentary">Ít vận động</SelectItem>
-                      <SelectItem value="light">Nhẹ (1–3 buổi/tuần)</SelectItem>
-                      <SelectItem value="moderate">
-                        Vừa (3–5 buổi/tuần)
-                      </SelectItem>
-                      <SelectItem value="active">
-                        Nhiều (6–7 buổi/tuần)
-                      </SelectItem>
-                      <SelectItem value="very">
-                        Rất nhiều (2 lần/ngày)
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+            {/* Mô tả */}
+            <p className="mt-2 text-base md:text-lg text-foreground/80 dark:text-white/90 max-w-2xl">
+              HealthyFit AI giúp bạn đạt mục tiêu giảm cân bằng công nghệ tiên
+              tiến. Tính toán chỉ số <span className="font-semibold">TDEE</span>
+              , nhận gợi ý thực phẩm thông minh và trò chuyện cùng trợ lý dinh
+              dưỡng AI.
+            </p>
 
-                <div className="grid gap-1.5">
-                  <Label>Mục tiêu</Label>
-                  <Select value={goal} onValueChange={setGoal}>
-                    <SelectTrigger className="rounded-xl">
-                      <SelectValue placeholder="Chọn" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="lose">Giảm cân</SelectItem>
-                      <SelectItem value="maintain">Giữ cân</SelectItem>
-                      <SelectItem value="gain">Tăng cơ</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+            {/* Nút hành động */}
+            <div className="mt-4 flex flex-wrap justify-center gap-3">
+              <Button asChild size="lg" className="rounded-xl shadow-lg">
+                <Link href="/calculator">
+                  <Calculator className="mr-2 h-5 w-5" />
+                  Tính Chỉ Số TDEE Của Bạn
+                </Link>
+              </Button>
 
-                <Button className="w-full rounded-xl" variant="default">
-                  <Calculator className="h-4 w-4 mr-2" />
-                  Tính toán
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Middle: results */}
-            <Card className="md:col-span-1 rounded-2xl shadow-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calculator className="h-5 w-5" /> Kết quả
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-2xl border p-3">
-                    <div className="text-xs text-muted-foreground">BMI</div>
-                    <div className="text-2xl font-semibold">{bmi || "—"}</div>
-                    <Badge variant="outline" className="mt-1 rounded-xl">
-                      {bmiLabel}
-                    </Badge>
-                  </div>
-                  <div className="rounded-2xl border p-3">
-                    <div className="text-xs text-muted-foreground">BMR</div>
-                    <div className="text-2xl font-semibold">
-                      {bmr || "—"} kcal
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      Năng lượng cơ bản
-                    </div>
-                  </div>
-                  <div className="rounded-2xl border p-3">
-                    <div className="text-xs text-muted-foreground">TDEE</div>
-                    <div className="text-2xl font-semibold">
-                      {tdee || "—"} kcal
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      Nhu cầu duy trì
-                    </div>
-                  </div>
-                  <div className="rounded-2xl border p-3">
-                    <div className="text-xs text-muted-foreground">
-                      Mục tiêu/ngày
-                    </div>
-                    <div className="text-2xl font-semibold">
-                      {cals || "—"} kcal
-                    </div>
-                    <Badge variant="secondary" className="mt-1 rounded-xl">
-                      {goal === "lose"
-                        ? "Giảm"
-                        : goal === "gain"
-                        ? "Tăng"
-                        : "Giữ"}
-                    </Badge>
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="rounded-2xl border p-3">
-                    <div className="text-xs">Protein</div>
-                    <div className="text-lg font-semibold">
-                      {macros.protein}g
-                    </div>
-                    <Progress
-                      value={Math.min(100, (macros.protein / 200) * 100)}
-                      className="h-2 mt-1"
-                    />
-                  </div>
-                  <div className="rounded-2xl border p-3">
-                    <div className="text-xs">Carbs</div>
-                    <div className="text-lg font-semibold">{macros.carbs}g</div>
-                    <Progress
-                      value={Math.min(100, (macros.carbs / 300) * 100)}
-                      className="h-2 mt-1"
-                    />
-                  </div>
-                  <div className="rounded-2xl border p-3">
-                    <div className="text-xs">Fat</div>
-                    <div className="text-lg font-semibold">{macros.fat}g</div>
-                    <Progress
-                      value={Math.min(100, (macros.fat / 100) * 100)}
-                      className="h-2 mt-1"
-                    />
-                  </div>
-                </div>
-
-                <div className="text-xs text-muted-foreground">
-                  * Tỉ lệ macro tự động theo mục tiêu, có thể tùy chỉnh trong
-                  phần Cài đặt.
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Right: chart */}
-            <Card className="md:col-span-1 rounded-2xl shadow-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <LineChartIcon className="h-5 w-5" /> Thống kê
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="h-[280px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart
-                    data={mockWeightData}
-                    margin={{ top: 10, right: 12, left: -20, bottom: 0 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis yAxisId="left" />
-                    <YAxis yAxisId="right" orientation="right" />
-                    <RCTooltip />
-                    <Legend />
-                    <Line
-                      yAxisId="left"
-                      type="monotone"
-                      dataKey="weight"
-                      name="Cân nặng (kg)"
-                      strokeWidth={2}
-                      dot={false}
-                    />
-                    <Line
-                      yAxisId="right"
-                      type="monotone"
-                      dataKey="calories"
-                      name="Calo (kcal)"
-                      strokeWidth={2}
-                      dot={false}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </section>
-
-        {/* Planner & Chat */}
-        <section className="container mx-auto px-4 pb-10">
-          <Tabs defaultValue="planner" className="w-full">
-            <TabsList className="rounded-2xl">
-              <TabsTrigger value="planner" className="rounded-xl">
-                🍱 Thực đơn gợi ý
-              </TabsTrigger>
-              <TabsTrigger value="education" className="rounded-xl">
-                📚 Kiến thức
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="planner" className="mt-4">
-              <Card className="rounded-2xl">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Sparkles className="h-5 w-5" /> Thực đơn theo mục tiêu
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-3">
-                    {plan.map((p) => (
-                      <div key={p.time} className="rounded-2xl border p-3">
-                        <div className="text-xs uppercase text-muted-foreground">
-                          {p.time}
-                        </div>
-                        <div className="font-medium mt-1">{p.item}</div>
-                        <div className="text-xs text-muted-foreground mt-1">
-                          ~{p.cal} kcal
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex items-center gap-2 mt-4">
-                    <Button
-                      variant="secondary"
-                      className="rounded-xl"
-                      onClick={() => setPlan(suggestMealPlan(cals))}
-                    >
-                      Gợi ý lại
-                    </Button>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button variant="outline" className="rounded-xl">
-                          Xuất PDF (demo)
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        Hook vào tính năng xuất báo cáo khi làm đồ án
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="education" className="mt-4">
-              <Card className="rounded-2xl">
-                <CardHeader>
-                  <CardTitle>Góc kiến thức nhanh</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2 text-sm text-muted-foreground">
-                  <p>
-                    • Đặt mục tiêu 0.7–1.6g protein/kg cơ thể/ngày tùy mức hoạt
-                    động.
-                  </p>
-                  <p>
-                    • Ưu tiên thực phẩm nguyên chất, hạn chế đồ uống có đường.
-                  </p>
-                  <p>
-                    • Ngủ đủ 7–8h và uống đủ nước giúp tối ưu hoá trao đổi chất.
-                  </p>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </section>
-
-        {/* Footer */}
-        <footer className="py-8 border-t">
-          <div className="container mx-auto px-4 text-xs text-muted-foreground flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Salad className="h-4 w-4" /> Nutrition AI
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="rounded-xl border-border text-foreground bg-background/70 hover:bg-muted"
+              >
+                <Link href="#features">Khám Phá Tính Năng</Link>
+              </Button>
             </div>
-            <div>© {new Date().getFullYear()} – Đồ án Web Dinh Dưỡng</div>
+
+            {/* Highlights */}
+            <div className="mt-6 flex flex-col sm:flex-row sm:justify-center sm:items-center gap-3 text-foreground/80 dark:text-white/90">
+              <span className="inline-flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4" />
+                Kiến Tạo Vóc Dáng Ước Mơ Cùng AI
+              </span>
+              <Separator
+                className="hidden sm:block h-4"
+                orientation="vertical"
+              />
+              <span className="inline-flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4" />
+                Kế Hoạch Giảm Cân Cá Nhân Hóa
+              </span>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* FEATURES */}
+      <section id="features" className="container mx-auto px-4 py-14">
+        <div className="max-w-2xl">
+          <h2 className="text-2xl md:text-3xl font-bold">Tính năng nổi bật</h2>
+          <p className="text-muted-foreground mt-2">
+            Mọi thứ bạn cần để bắt đầu hành trình sống khỏe – gọn nhẹ, trực quan
+            và hiệu quả.
+          </p>
+        </div>
+
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <Card className="rounded-2xl bg-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Calculator className="h-5 w-5" />
+                Tính Toán Năng Lượng Chính Xác
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground">
+              Xác định TDEE dựa trên chiều cao, cân nặng, tuổi, giới tính và mức
+              độ hoạt động. Nền tảng cho kế hoạch giảm cân hiệu quả.
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-2xl bg-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <UtensilsCrossed className="h-5 w-5" />
+                Thực Đơn Lý Tưởng Cho Bạn
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground">
+              Gợi ý thực phẩm phù hợp mục tiêu và sở thích ăn uống. Đầy đủ dinh
+              dưỡng, không nhàm chán.
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-2xl bg-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <MessageCircle className="h-5 w-5" />
+                Trợ Lý Dinh Dưỡng AI
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground">
+              Hỏi đáp nhanh về khẩu phần, macro, mẹo ăn uống – 24/7. Luôn sẵn
+              sàng hỗ trợ bạn.
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* SHOWCASE */}
+      <section id="showcase" className="container mx-auto px-4 py-6">
+        <Card className="rounded-2xl overflow-hidden bg-card">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5" />
+              Trải Nghiệm HealthyFit Ngay Hôm Nay!
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid lg:grid-cols-2 gap-6">
+              {/* Mockup UI */}
+              <div className="relative rounded-xl border bg-muted/40 overflow-hidden">
+                <div className="aspect-[16/10] relative">
+                  <Image
+                    src="/mockup.png"
+                    alt="HealthyFit AI mockup"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              </div>
+
+              {/* Tabs */}
+              <div>
+                <Tabs defaultValue="dashboard" className="w-full">
+                  <TabsList className="rounded-xl bg-muted">
+                    <TabsTrigger
+                      value="dashboard"
+                      className="rounded-lg data-[state=active]:bg-background data-[state=active]:text-foreground"
+                    >
+                      Dashboard
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="meal"
+                      className="rounded-lg data-[state=active]:bg-background data-[state=active]:text-foreground"
+                    >
+                      Meal Plan
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="food"
+                      className="rounded-lg data-[state=active]:bg-background data-[state=active]:text-foreground"
+                    >
+                      Food Library
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="chat"
+                      className="rounded-lg data-[state=active]:bg-background data-[state=active]:text-foreground"
+                    >
+                      Chatbot
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="dashboard" className="mt-4">
+                    <Card className="rounded-xl bg-card">
+                      <CardHeader>
+                        <CardTitle>Tổng quan chỉ số & mục tiêu</CardTitle>
+                      </CardHeader>
+                      <CardContent className="text-sm text-muted-foreground">
+                        Theo dõi TDEE, tiến độ cân nặng, macro mỗi ngày và gợi ý
+                        điều chỉnh thông minh.
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="meal" className="mt-4">
+                    <Card className="rounded-xl bg-card">
+                      <CardHeader>
+                        <CardTitle>Thực đơn cá nhân hóa</CardTitle>
+                      </CardHeader>
+                      <CardContent className="text-sm text-muted-foreground">
+                        Gợi ý bữa sáng, trưa, tối và snack theo mục tiêu calo.
+                        Có thể thay thế linh hoạt.
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="food" className="mt-4">
+                    <Card className="rounded-xl bg-card">
+                      <CardHeader>
+                        <CardTitle>Thư viện thực phẩm</CardTitle>
+                      </CardHeader>
+                      <CardContent className="text-sm text-muted-foreground">
+                        Tra cứu nhanh calo & macro của hàng nghìn thực phẩm phổ
+                        biến tại Việt Nam.
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="chat" className="mt-4">
+                    <Card className="rounded-xl bg-card">
+                      <CardHeader>
+                        <CardTitle>Trợ lý chat AI</CardTitle>
+                      </CardHeader>
+                      <CardContent className="text-sm text-muted-foreground">
+                        Đặt câu hỏi về dinh dưỡng, kế hoạch ăn uống, hoặc mẹo
+                        tập luyện – AI phản hồi tức thì.
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </Tabs>
+
+                <div className="mt-5 flex gap-3">
+                  <Button asChild className="rounded-xl">
+                    <Link href="/register">Dùng thử miễn phí!</Link>
+                  </Button>
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="rounded-xl border-border text-foreground hover:bg-muted"
+                  >
+                    <Link href="/calculator">Tính TDEE ngay</Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* TESTIMONIALS */}
+      <section id="testimonials" className="container mx-auto px-4 py-14">
+        <div className="max-w-2xl">
+          <h2 className="text-2xl md:text-3xl font-bold">
+            Hàng Nghìn Người Đã Thành Công Cùng HealthyFit!
+          </h2>
+          <p className="text-muted-foreground mt-2">
+            Câu chuyện thật từ cộng đồng người dùng yêu thích sự đơn giản và
+            hiệu quả.
+          </p>
+        </div>
+
+        <div className="mt-6 grid gap-4 md:grid-cols-3">
+          {[
+            {
+              name: "Ngọc Anh",
+              text: "Sau 8 tuần dùng HealthyFit AI, mình giảm 5kg. Thực đơn dễ làm, không bị đói.",
+            },
+            {
+              name: "Minh Long",
+              text: "Điểm thích nhất là TDEE & macro được tính sẵn. Chỉ cần theo đúng là cân nặng đi xuống đều.",
+            },
+            {
+              name: "Hải Yến",
+              text: "Chatbot hỗ trợ rất nhanh, gợi ý thay thế món ăn phù hợp khi bận rộn.",
+            },
+          ].map((t, i) => (
+            <Card key={i} className="rounded-2xl bg-card">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center justify-between">
+                  <span className="flex items-center gap-3">
+                    <Avatar className="h-7 w-7 ring-2 ring-primary/20">
+                      <AvatarFallback className="bg-primary/10 text-primary flex items-center justify-center">
+                        <Salad className="h-4 w-4" />
+                      </AvatarFallback>
+                    </Avatar>
+                    {t.name}
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-primary">
+                    <Star className="h-4 w-4 fill-primary" />
+                    5.0
+                  </span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm text-muted-foreground">
+                “{t.text}”
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <div className="mt-6">
+          <Button asChild variant="secondary" className="rounded-xl">
+            <Link href="/stories">Xem thêm câu chuyện thành công</Link>
+          </Button>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="border-t">
+        <div className="container mx-auto px-4 py-8 flex flex-col md:flex-row items-center justify-between gap-3 text-sm">
+          <div className="flex items-center gap-2">
+            <Salad className="h-4 w-4 text-primary" />
+            <span className="font-semibold">HealthyFit AI</span>
+            <Badge variant="secondary" className="rounded-full">
+              Beta
+            </Badge>
           </div>
-        </footer>
-      </div>
-    </TooltipProvider>
+
+          <div className="text-muted-foreground">
+            © {new Date().getFullYear()} – Sống khỏe thông minh mỗi ngày
+          </div>
+
+          <div className="flex items-center gap-4 text-muted-foreground">
+            <Link href="/privacy" className="hover:text-foreground">
+              Privacy
+            </Link>
+            <Link href="/terms" className="hover:text-foreground">
+              Terms
+            </Link>
+            <Link href="/contact" className="hover:text-foreground">
+              Liên hệ
+            </Link>
+          </div>
+        </div>
+      </footer>
+    </div>
   );
 }
