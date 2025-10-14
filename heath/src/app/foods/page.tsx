@@ -1,3 +1,4 @@
+// src/app/foods/page.tsx
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -97,9 +98,11 @@ export default function FoodsPage() {
     fat: "",
     type: "breakfast",
   });
+
   function update<K extends keyof typeof form>(key: K, val: (typeof form)[K]) {
     setForm((f) => ({ ...f, [key]: val }));
   }
+
   async function createFood() {
     if (!form.name || Number(form.calories) <= 0) {
       alert("Vui lòng nhập Tên và Calo > 0");
@@ -231,29 +234,34 @@ export default function FoodsPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 bg-gradient-to-b from-emerald-50/60 via-lime-50/40 to-background dark:from-emerald-950/40 dark:via-emerald-900/20 dark:to-background rounded-3xl p-4 md:p-6">
       {/* Toolbar */}
-      <Card className="rounded-2xl">
+      <Card className="rounded-2xl border-emerald-200/60 dark:border-emerald-900/40">
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <span>📦 Cơ sở dữ liệu thực phẩm</span>
+            <span className="text-emerald-700 dark:text-emerald-400">
+              📦 Cơ sở dữ liệu thực phẩm
+            </span>
 
             {/* Thêm món */}
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Button className="rounded-xl">
+                <Button className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white">
                   <Plus className="h-4 w-4 mr-2" /> Thêm món
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[560px]">
+              <DialogContent className="sm:max-w-[560px] rounded-2xl border-emerald-200 dark:border-emerald-800">
                 <DialogHeader>
-                  <DialogTitle>Thêm thực phẩm</DialogTitle>
+                  <DialogTitle className="text-emerald-700 dark:text-emerald-400">
+                    Thêm thực phẩm
+                  </DialogTitle>
                 </DialogHeader>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="col-span-2">
                     <Label>Tên món *</Label>
                     <Input
+                      className="border-emerald-200 dark:border-emerald-800 focus-visible:ring-emerald-500"
                       value={form.name}
                       onChange={(e) => update("name", e.target.value)}
                     />
@@ -262,6 +270,7 @@ export default function FoodsPage() {
                     <Label>Calo *</Label>
                     <Input
                       type="number"
+                      className="border-emerald-200 dark:border-emerald-800 focus-visible:ring-emerald-500"
                       value={form.calories}
                       onChange={(e) => update("calories", e.target.value)}
                       min={0}
@@ -271,6 +280,7 @@ export default function FoodsPage() {
                     <Label>Protein (g)</Label>
                     <Input
                       type="number"
+                      className="border-emerald-200 dark:border-emerald-800 focus-visible:ring-emerald-500"
                       value={form.protein}
                       onChange={(e) => update("protein", e.target.value)}
                       min={0}
@@ -280,6 +290,7 @@ export default function FoodsPage() {
                     <Label>Carbs (g)</Label>
                     <Input
                       type="number"
+                      className="border-emerald-200 dark:border-emerald-800 focus-visible:ring-emerald-500"
                       value={form.carbs}
                       onChange={(e) => update("carbs", e.target.value)}
                       min={0}
@@ -289,6 +300,7 @@ export default function FoodsPage() {
                     <Label>Fat (g)</Label>
                     <Input
                       type="number"
+                      className="border-emerald-200 dark:border-emerald-800 focus-visible:ring-emerald-500"
                       value={form.fat}
                       onChange={(e) => update("fat", e.target.value)}
                       min={0}
@@ -300,7 +312,7 @@ export default function FoodsPage() {
                       value={form.type}
                       onValueChange={(v) => update("type", v as MealType)}
                     >
-                      <SelectTrigger className="rounded-xl">
+                      <SelectTrigger className="rounded-xl border-emerald-200 dark:border-emerald-800">
                         <SelectValue placeholder="Chọn" />
                       </SelectTrigger>
                       <SelectContent>
@@ -317,13 +329,13 @@ export default function FoodsPage() {
                 <div className="flex justify-end gap-2 pt-2">
                   <Button
                     variant="outline"
-                    className="rounded-xl"
+                    className="rounded-xl border-emerald-200 hover:bg-emerald-50 dark:border-emerald-800 dark:hover:bg-emerald-950/30"
                     onClick={() => setOpen(false)}
                   >
                     Huỷ
                   </Button>
                   <Button
-                    className="rounded-xl"
+                    className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white"
                     onClick={createFood}
                     disabled={saving}
                   >
@@ -338,7 +350,7 @@ export default function FoodsPage() {
         <CardContent className="flex flex-wrap gap-3 items-center">
           <Input
             placeholder="🔍 Tìm tên món…"
-            className="max-w-sm"
+            className="max-w-sm border-emerald-200 dark:border-emerald-800 focus-visible:ring-emerald-500"
             value={q}
             onChange={(e) => {
               setQ(e.target.value);
@@ -352,7 +364,7 @@ export default function FoodsPage() {
               setPage(1);
             }}
           >
-            <SelectTrigger className="w-[200px] rounded-xl">
+            <SelectTrigger className="w-[200px] rounded-xl border-emerald-200 dark:border-emerald-800">
               <SelectValue placeholder="Loại bữa" />
             </SelectTrigger>
             <SelectContent>
@@ -368,32 +380,46 @@ export default function FoodsPage() {
       </Card>
 
       {/* Bảng */}
-      <Card className="rounded-2xl">
+      <Card className="rounded-2xl border-emerald-200/60 dark:border-emerald-900/40">
         <CardContent className="pt-6">
           <Table>
-            <TableCaption>
+            <TableCaption className="text-foreground/70 dark:text-white/70">
               Dinh dưỡng/khẩu phần • Tổng: {filtered.length} món
             </TableCaption>
             <TableHeader>
-              <TableRow>
-                <TableHead>Tên</TableHead>
-                <TableHead>Loại</TableHead>
-                <TableHead className="text-right">Calo</TableHead>
-                <TableHead className="text-right">Protein</TableHead>
-                <TableHead className="text-right">Carbs</TableHead>
-                <TableHead className="text-right">Fat</TableHead>
-                <TableHead className="text-right">Thao tác</TableHead>
+              <TableRow className="hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20">
+                <TableHead className="text-emerald-700 dark:text-emerald-400">
+                  Tên
+                </TableHead>
+                <TableHead className="text-emerald-700 dark:text-emerald-400">
+                  Loại
+                </TableHead>
+                <TableHead className="text-right text-emerald-700 dark:text-emerald-400">
+                  Calo
+                </TableHead>
+                <TableHead className="text-right text-emerald-700 dark:text-emerald-400">
+                  Protein
+                </TableHead>
+                <TableHead className="text-right text-emerald-700 dark:text-emerald-400">
+                  Carbs
+                </TableHead>
+                <TableHead className="text-right text-emerald-700 dark:text-emerald-400">
+                  Fat
+                </TableHead>
+                <TableHead className="text-right text-emerald-700 dark:text-emerald-400">
+                  Thao tác
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {view.map((f) => (
-                <TableRow key={f._id}>
+                <TableRow
+                  key={f._id}
+                  className="hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20"
+                >
                   <TableCell className="font-medium">{f.name}</TableCell>
                   <TableCell>
-                    <Badge
-                      variant="secondary"
-                      className="rounded-xl capitalize"
-                    >
+                    <Badge className="rounded-xl capitalize bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200">
                       {f.type ?? "breakfast"}
                     </Badge>
                   </TableCell>
@@ -408,14 +434,16 @@ export default function FoodsPage() {
                       <Button
                         variant="ghost"
                         size="icon"
+                        className="hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
                         onClick={() => startEdit(f)}
                         aria-label="Sửa"
                       >
-                        <Pencil className="h-4 w-4" />
+                        <Pencil className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
+                        className="hover:bg-red-50 dark:hover:bg-red-950/30"
                         onClick={() => deleteFood(f._id)}
                         aria-label="Xóa"
                       >
@@ -443,19 +471,19 @@ export default function FoodsPage() {
             <Button
               variant="outline"
               size="sm"
-              className="rounded-xl"
+              className="rounded-xl border-emerald-200 hover:bg-emerald-50 dark:border-emerald-800 dark:hover:bg-emerald-950/30"
               disabled={page <= 1}
               onClick={() => setPage((p) => p - 1)}
             >
               Trước
             </Button>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm text-foreground/70 dark:text-white/70">
               Trang {page}/{total}
             </span>
             <Button
               variant="outline"
               size="sm"
-              className="rounded-xl"
+              className="rounded-xl border-emerald-200 hover:bg-emerald-50 dark:border-emerald-800 dark:hover:bg-emerald-950/30"
               disabled={page >= total}
               onClick={() => setPage((p) => p + 1)}
             >
@@ -467,15 +495,18 @@ export default function FoodsPage() {
 
       {/* Edit dialog */}
       <Dialog open={openEdit} onOpenChange={setOpenEdit}>
-        <DialogContent className="sm:max-w-[560px]">
+        <DialogContent className="sm:max-w-[560px] rounded-2xl border-emerald-200 dark:border-emerald-800">
           <DialogHeader>
-            <DialogTitle>Sửa thực phẩm</DialogTitle>
+            <DialogTitle className="text-emerald-700 dark:text-emerald-400">
+              Sửa thực phẩm
+            </DialogTitle>
           </DialogHeader>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2">
               <Label>Tên món *</Label>
               <Input
+                className="border-emerald-200 dark:border-emerald-800 focus-visible:ring-emerald-500"
                 value={editForm.name}
                 onChange={(e) => updateEdit("name", e.target.value)}
               />
@@ -484,6 +515,7 @@ export default function FoodsPage() {
               <Label>Calo *</Label>
               <Input
                 type="number"
+                className="border-emerald-200 dark:border-emerald-800 focus-visible:ring-emerald-500"
                 value={editForm.calories}
                 onChange={(e) => updateEdit("calories", e.target.value)}
                 min={0}
@@ -493,6 +525,7 @@ export default function FoodsPage() {
               <Label>Protein (g)</Label>
               <Input
                 type="number"
+                className="border-emerald-200 dark:border-emerald-800 focus-visible:ring-emerald-500"
                 value={editForm.protein}
                 onChange={(e) => updateEdit("protein", e.target.value)}
                 min={0}
@@ -502,6 +535,7 @@ export default function FoodsPage() {
               <Label>Carbs (g)</Label>
               <Input
                 type="number"
+                className="border-emerald-200 dark:border-emerald-800 focus-visible:ring-emerald-500"
                 value={editForm.carbs}
                 onChange={(e) => updateEdit("carbs", e.target.value)}
                 min={0}
@@ -511,6 +545,7 @@ export default function FoodsPage() {
               <Label>Fat (g)</Label>
               <Input
                 type="number"
+                className="border-emerald-200 dark:border-emerald-800 focus-visible:ring-emerald-500"
                 value={editForm.fat}
                 onChange={(e) => updateEdit("fat", e.target.value)}
                 min={0}
@@ -522,7 +557,7 @@ export default function FoodsPage() {
                 value={editForm.type}
                 onValueChange={(v) => updateEdit("type", v as MealType)}
               >
-                <SelectTrigger className="rounded-xl">
+                <SelectTrigger className="rounded-xl border-emerald-200 dark:border-emerald-800">
                   <SelectValue placeholder="Chọn" />
                 </SelectTrigger>
                 <SelectContent>
@@ -539,13 +574,13 @@ export default function FoodsPage() {
           <div className="flex justify-end gap-2 pt-2">
             <Button
               variant="outline"
-              className="rounded-xl"
+              className="rounded-xl border-emerald-200 hover:bg-emerald-50 dark:border-emerald-800 dark:hover:bg-emerald-950/30"
               onClick={() => setOpenEdit(false)}
             >
               Huỷ
             </Button>
             <Button
-              className="rounded-xl"
+              className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white"
               onClick={saveEdit}
               disabled={updating}
             >

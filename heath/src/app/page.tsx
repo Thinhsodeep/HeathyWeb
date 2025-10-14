@@ -37,8 +37,16 @@ export default function HomePage() {
             className="object-cover"
           />
 
-          {/* ✅ Overlay màu xám nhẹ (light mode) và tối vừa (dark mode) */}
-          <div className="absolute inset-0 bg-gradient-to-b from-gray-200/80 via-gray-100/70 to-background dark:from-black/60 dark:via-gray-900/50 dark:to-background" />
+          {/* 🌿 Overlay tone xanh lá nhẹ (health style) */}
+          <div
+            className="
+              absolute inset-0
+              bg-gradient-to-b
+              from-emerald-100/80 via-lime-100/70 to-background
+              dark:from-emerald-900/60 dark:via-emerald-950/50 dark:to-background
+              backdrop-blur-[2px]
+            "
+          />
         </div>
 
         {/* Nội dung căn giữa */}
@@ -50,7 +58,7 @@ export default function HomePage() {
             className="max-w-3xl flex flex-col items-center gap-5"
           >
             {/* Logo / Badge */}
-            <Badge className="rounded-full mb-2 px-4 py-1 text-sm">
+            <Badge className="rounded-full mb-2 px-4 py-1 text-sm bg-emerald-600 text-white shadow">
               HealthyFit AI
             </Badge>
 
@@ -69,7 +77,11 @@ export default function HomePage() {
 
             {/* Nút hành động */}
             <div className="mt-4 flex flex-wrap justify-center gap-3">
-              <Button asChild size="lg" className="rounded-xl shadow-lg">
+              <Button
+                asChild
+                size="lg"
+                className="rounded-xl shadow-lg bg-emerald-600 hover:bg-emerald-700 text-white"
+              >
                 <Link href="/calculator">
                   <Calculator className="mr-2 h-5 w-5" />
                   Tính Chỉ Số TDEE Của Bạn
@@ -80,7 +92,7 @@ export default function HomePage() {
                 asChild
                 variant="outline"
                 size="lg"
-                className="rounded-xl border-border text-foreground bg-background/70 hover:bg-muted"
+                className="rounded-xl border-emerald-300 text-foreground bg-white/80 hover:bg-emerald-50 dark:bg-background dark:border-emerald-800 dark:hover:bg-emerald-900/30"
               >
                 <Link href="#features">Khám Phá Tính Năng</Link>
               </Button>
@@ -89,7 +101,7 @@ export default function HomePage() {
             {/* Highlights */}
             <div className="mt-6 flex flex-col sm:flex-row sm:justify-center sm:items-center gap-3 text-foreground/80 dark:text-white/90">
               <span className="inline-flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4" />
+                <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                 Kiến Tạo Vóc Dáng Ước Mơ Cùng AI
               </span>
               <Separator
@@ -97,7 +109,7 @@ export default function HomePage() {
                 orientation="vertical"
               />
               <span className="inline-flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4" />
+                <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                 Kế Hoạch Giảm Cân Cá Nhân Hóa
               </span>
             </div>
@@ -116,10 +128,10 @@ export default function HomePage() {
         </div>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <Card className="rounded-2xl bg-card">
+          <Card className="rounded-2xl bg-card border-emerald-200/60 dark:border-emerald-900/40">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-lg">
-                <Calculator className="h-5 w-5" />
+                <Calculator className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                 Tính Toán Năng Lượng Chính Xác
               </CardTitle>
             </CardHeader>
@@ -129,10 +141,10 @@ export default function HomePage() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-2xl bg-card">
+          <Card className="rounded-2xl bg-card border-emerald-200/60 dark:border-emerald-900/40">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-lg">
-                <UtensilsCrossed className="h-5 w-5" />
+                <UtensilsCrossed className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                 Thực Đơn Lý Tưởng Cho Bạn
               </CardTitle>
             </CardHeader>
@@ -142,10 +154,10 @@ export default function HomePage() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-2xl bg-card">
+          <Card className="rounded-2xl bg-card border-emerald-200/60 dark:border-emerald-900/40">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-lg">
-                <MessageCircle className="h-5 w-5" />
+                <MessageCircle className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                 Trợ Lý Dinh Dưỡng AI
               </CardTitle>
             </CardHeader>
@@ -159,17 +171,17 @@ export default function HomePage() {
 
       {/* SHOWCASE */}
       <section id="showcase" className="container mx-auto px-4 py-6">
-        <Card className="rounded-2xl overflow-hidden bg-card">
+        <Card className="rounded-2xl overflow-hidden bg-card border-emerald-200/70 dark:border-emerald-900/40">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5" />
+              <BarChart3 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               Trải Nghiệm HealthyFit Ngay Hôm Nay!
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid lg:grid-cols-2 gap-6">
               {/* Mockup UI */}
-              <div className="relative rounded-xl border bg-muted/40 overflow-hidden">
+              <div className="relative rounded-xl border bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-200/60 dark:border-emerald-900/40 overflow-hidden">
                 <div className="aspect-[16/10] relative">
                   <Image
                     src="/mockup.png"
@@ -183,7 +195,7 @@ export default function HomePage() {
               {/* Tabs */}
               <div>
                 <Tabs defaultValue="dashboard" className="w-full">
-                  <TabsList className="rounded-xl bg-muted">
+                  <TabsList className="rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-900/40">
                     <TabsTrigger
                       value="dashboard"
                       className="rounded-lg data-[state=active]:bg-background data-[state=active]:text-foreground"
@@ -211,7 +223,7 @@ export default function HomePage() {
                   </TabsList>
 
                   <TabsContent value="dashboard" className="mt-4">
-                    <Card className="rounded-xl bg-card">
+                    <Card className="rounded-xl bg-card border-emerald-200/60 dark:border-emerald-900/40">
                       <CardHeader>
                         <CardTitle>Tổng quan chỉ số & mục tiêu</CardTitle>
                       </CardHeader>
@@ -223,7 +235,7 @@ export default function HomePage() {
                   </TabsContent>
 
                   <TabsContent value="meal" className="mt-4">
-                    <Card className="rounded-xl bg-card">
+                    <Card className="rounded-xl bg-card border-emerald-200/60 dark:border-emerald-900/40">
                       <CardHeader>
                         <CardTitle>Thực đơn cá nhân hóa</CardTitle>
                       </CardHeader>
@@ -235,7 +247,7 @@ export default function HomePage() {
                   </TabsContent>
 
                   <TabsContent value="food" className="mt-4">
-                    <Card className="rounded-xl bg-card">
+                    <Card className="rounded-xl bg-card border-emerald-200/60 dark:border-emerald-900/40">
                       <CardHeader>
                         <CardTitle>Thư viện thực phẩm</CardTitle>
                       </CardHeader>
@@ -247,7 +259,7 @@ export default function HomePage() {
                   </TabsContent>
 
                   <TabsContent value="chat" className="mt-4">
-                    <Card className="rounded-xl bg-card">
+                    <Card className="rounded-xl bg-card border-emerald-200/60 dark:border-emerald-900/40">
                       <CardHeader>
                         <CardTitle>Trợ lý chat AI</CardTitle>
                       </CardHeader>
@@ -260,13 +272,13 @@ export default function HomePage() {
                 </Tabs>
 
                 <div className="mt-5 flex gap-3">
-                  <Button asChild className="rounded-xl">
+                  <Button className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white">
                     <Link href="/register">Dùng thử miễn phí!</Link>
                   </Button>
                   <Button
                     asChild
                     variant="outline"
-                    className="rounded-xl border-border text-foreground hover:bg-muted"
+                    className="rounded-xl border-emerald-300 text-foreground hover:bg-emerald-50 dark:border-emerald-900/40 dark:hover:bg-emerald-950/30"
                   >
                     <Link href="/calculator">Tính TDEE ngay</Link>
                   </Button>
@@ -283,10 +295,6 @@ export default function HomePage() {
           <h2 className="text-2xl md:text-3xl font-bold">
             Hàng Nghìn Người Đã Thành Công Cùng HealthyFit!
           </h2>
-          <p className="text-muted-foreground mt-2">
-            Câu chuyện thật từ cộng đồng người dùng yêu thích sự đơn giản và
-            hiệu quả.
-          </p>
         </div>
 
         <div className="mt-6 grid gap-4 md:grid-cols-3">
@@ -304,19 +312,22 @@ export default function HomePage() {
               text: "Chatbot hỗ trợ rất nhanh, gợi ý thay thế món ăn phù hợp khi bận rộn.",
             },
           ].map((t, i) => (
-            <Card key={i} className="rounded-2xl bg-card">
+            <Card
+              key={i}
+              className="rounded-2xl bg-card border-emerald-200/60 dark:border-emerald-900/40"
+            >
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center justify-between">
                   <span className="flex items-center gap-3">
-                    <Avatar className="h-7 w-7 ring-2 ring-primary/20">
-                      <AvatarFallback className="bg-primary/10 text-primary flex items-center justify-center">
+                    <Avatar className="h-7 w-7 ring-2 ring-emerald-300/50 dark:ring-emerald-900/40">
+                      <AvatarFallback className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200 flex items-center justify-center">
                         <Salad className="h-4 w-4" />
                       </AvatarFallback>
                     </Avatar>
                     {t.name}
                   </span>
-                  <span className="inline-flex items-center gap-1 text-primary">
-                    <Star className="h-4 w-4 fill-primary" />
+                  <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                    <Star className="h-4 w-4 fill-emerald-500 dark:fill-emerald-400" />
                     5.0
                   </span>
                 </CardTitle>
@@ -329,7 +340,10 @@ export default function HomePage() {
         </div>
 
         <div className="mt-6">
-          <Button asChild variant="secondary" className="rounded-xl">
+          <Button
+            asChild
+            className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white"
+          >
             <Link href="/stories">Xem thêm câu chuyện thành công</Link>
           </Button>
         </div>
@@ -339,9 +353,9 @@ export default function HomePage() {
       <footer className="border-t">
         <div className="container mx-auto px-4 py-8 flex flex-col md:flex-row items-center justify-between gap-3 text-sm">
           <div className="flex items-center gap-2">
-            <Salad className="h-4 w-4 text-primary" />
+            <Salad className="h-4 w-4 text-emerald-600" />
             <span className="font-semibold">HealthyFit AI</span>
-            <Badge variant="secondary" className="rounded-full">
+            <Badge className="rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200">
               Beta
             </Badge>
           </div>

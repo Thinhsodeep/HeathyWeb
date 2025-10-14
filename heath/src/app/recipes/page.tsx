@@ -357,16 +357,17 @@ export default function RecipesPage() {
 
   return (
     <motion.div
-      className="container mx-auto px-4 py-8 space-y-6"
+      className="container mx-auto px-4 py-10 space-y-8 bg-gradient-to-b from-emerald-50/60 via-lime-50/40 to-background dark:from-emerald-950/40 dark:via-emerald-900/20 dark:to-background rounded-3xl"
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35 }}
     >
+      {/* Tiêu đề */}
       <div className="text-center space-y-2">
-        <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
+        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-emerald-700 dark:text-emerald-400">
           🍽️ Thư Viện Công Thức Ăn Uống
         </h1>
-        <p className="text-muted-foreground max-w-xl mx-auto">
+        <p className="text-foreground/80 dark:text-white/80 max-w-xl mx-auto">
           Hơn chục món Eat Clean, tăng cơ, giảm cân và ăn chay — kèm nguyên liệu
           & cách nấu chi tiết.
         </p>
@@ -376,7 +377,7 @@ export default function RecipesPage() {
       <div className="flex flex-wrap gap-3 justify-center">
         <Input
           placeholder="🔍 Tìm công thức..."
-          className="max-w-sm"
+          className="max-w-sm border-emerald-200 dark:border-emerald-800 focus-visible:ring-emerald-500"
           value={q}
           onChange={(e) => {
             setQ(e.target.value);
@@ -394,7 +395,11 @@ export default function RecipesPage() {
             <Button
               key={t.id}
               variant={t.id === tag ? "default" : "outline"}
-              className="rounded-xl"
+              className={`rounded-xl transition-all ${
+                t.id === tag
+                  ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                  : "border-emerald-200 hover:bg-emerald-50 dark:border-emerald-800 dark:hover:bg-emerald-950/30"
+              }`}
               onClick={() => {
                 setTag(t.id);
                 setPage(1);
@@ -406,7 +411,7 @@ export default function RecipesPage() {
         </div>
       </div>
 
-      <Separator />
+      <Separator className="bg-emerald-200 dark:bg-emerald-900/50" />
 
       {/* Grid danh sách */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -414,7 +419,7 @@ export default function RecipesPage() {
           <Card
             key={r.id}
             onClick={() => setSelected(r)}
-            className="rounded-2xl overflow-hidden hover:shadow-lg transition-all cursor-pointer"
+            className="rounded-2xl overflow-hidden border border-emerald-200/60 dark:border-emerald-900/40 hover:shadow-lg hover:shadow-emerald-100/60 dark:hover:shadow-emerald-900/30 transition-all cursor-pointer bg-card"
           >
             <div className="relative h-40 w-full overflow-hidden">
               <Image
@@ -426,27 +431,36 @@ export default function RecipesPage() {
             </div>
 
             <CardHeader className="pb-1">
-              <CardTitle className="text-lg">{r.name}</CardTitle>
+              <CardTitle className="text-lg text-foreground dark:text-white">
+                {r.name}
+              </CardTitle>
             </CardHeader>
 
             <CardContent className="space-y-2 text-sm">
-              <p className="text-muted-foreground line-clamp-2">{r.desc}</p>
+              <p className="text-foreground/70 dark:text-white/70 line-clamp-2">
+                {r.desc}
+              </p>
 
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Flame className="h-4 w-4 text-orange-500" /> {r.kcal} kcal
                 </span>
                 <span className="flex items-center gap-1">
-                  <Drumstick className="h-4 w-4 text-red-500" /> {r.protein}g
+                  <Drumstick className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />{" "}
+                  {r.protein}g
                 </span>
                 <span className="flex items-center gap-1">
-                  <Leaf className="h-4 w-4 text-green-500" /> {r.carb}g
+                  <Leaf className="h-4 w-4 text-lime-600 dark:text-lime-400" />{" "}
+                  {r.carb}g
                 </span>
               </div>
 
               <div className="flex flex-wrap gap-1 pt-1">
                 {r.tags.map((t) => (
-                  <Badge key={t} variant="secondary" className="rounded-xl">
+                  <Badge
+                    key={t}
+                    className="rounded-xl bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200"
+                  >
                     {t}
                   </Badge>
                 ))}
@@ -463,17 +477,19 @@ export default function RecipesPage() {
             variant="outline"
             size="sm"
             disabled={page === 1}
+            className="border-emerald-200 dark:border-emerald-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
             onClick={() => setPage((p) => p - 1)}
           >
             ← Trước
           </Button>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-sm text-foreground/70 dark:text-white/70">
             Trang {page}/{totalPages}
           </span>
           <Button
             variant="outline"
             size="sm"
             disabled={page === totalPages}
+            className="border-emerald-200 dark:border-emerald-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
             onClick={() => setPage((p) => p + 1)}
           >
             Sau →
@@ -492,11 +508,11 @@ export default function RecipesPage() {
         open={!!selected}
         onOpenChange={(open) => !open && setSelected(null)}
       >
-        <DialogContent className="max-w-2xl rounded-2xl overflow-hidden">
+        <DialogContent className="max-w-2xl rounded-2xl overflow-hidden border-emerald-200 dark:border-emerald-800 bg-card">
           {selected && (
             <>
               <DialogHeader>
-                <DialogTitle className="text-2xl font-bold">
+                <DialogTitle className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">
                   {selected.name}
                 </DialogTitle>
               </DialogHeader>
@@ -511,22 +527,29 @@ export default function RecipesPage() {
               </div>
 
               <div className="space-y-4 mt-4">
-                <p className="text-muted-foreground">{selected.desc}</p>
+                <p className="text-foreground/80 dark:text-white/80">
+                  {selected.desc}
+                </p>
 
                 <div className="flex flex-wrap gap-2">
                   {selected.tags.map((t) => (
-                    <Badge key={t} variant="secondary" className="rounded-xl">
+                    <Badge
+                      key={t}
+                      className="rounded-xl bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200"
+                    >
                       {t}
                     </Badge>
                   ))}
                 </div>
 
-                <Separator />
+                <Separator className="bg-emerald-200 dark:bg-emerald-900/40" />
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <h3 className="font-semibold mb-2">🥦 Nguyên liệu</h3>
-                    <ul className="list-disc pl-6 text-sm space-y-1 text-muted-foreground">
+                    <h3 className="font-semibold mb-2 text-emerald-700 dark:text-emerald-400">
+                      🥦 Nguyên liệu
+                    </h3>
+                    <ul className="list-disc pl-6 text-sm space-y-1 text-foreground/80 dark:text-white/80">
                       {selected.ingredients.map((i, idx) => (
                         <li key={idx}>{i}</li>
                       ))}
@@ -534,8 +557,10 @@ export default function RecipesPage() {
                   </div>
 
                   <div>
-                    <h3 className="font-semibold mb-2">👩‍🍳 Cách nấu</h3>
-                    <ol className="list-decimal pl-6 text-sm space-y-1 text-muted-foreground">
+                    <h3 className="font-semibold mb-2 text-emerald-700 dark:text-emerald-400">
+                      👩‍🍳 Cách nấu
+                    </h3>
+                    <ol className="list-decimal pl-6 text-sm space-y-1 text-foreground/80 dark:text-white/80">
                       {selected.steps.map((s, idx) => (
                         <li key={idx}>{s}</li>
                       ))}
@@ -543,9 +568,9 @@ export default function RecipesPage() {
                   </div>
                 </div>
 
-                <Separator />
+                <Separator className="bg-emerald-200 dark:bg-emerald-900/40" />
 
-                <div className="flex flex-wrap justify-around text-sm text-muted-foreground">
+                <div className="flex flex-wrap justify-around text-sm text-foreground/70 dark:text-white/70">
                   <span>🔥 {selected.kcal} kcal</span>
                   <span>🍗 {selected.protein}g Protein</span>
                   <span>🌾 {selected.carb}g Carb</span>

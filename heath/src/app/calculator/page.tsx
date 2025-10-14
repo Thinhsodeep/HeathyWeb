@@ -163,7 +163,9 @@ export default function CalculatorPage() {
               </SelectContent>
             </Select>
           </div>
-          <Button className="rounded-xl w-full">Tính lại</Button>
+          <Button className="rounded-xl w-full bg-emerald-600 hover:bg-emerald-700 text-white">
+            Tính lại
+          </Button>
         </CardContent>
       </Card>
 
@@ -176,7 +178,10 @@ export default function CalculatorPage() {
             <div className="border rounded-2xl p-3">
               <div className="text-xs text-muted-foreground">BMI</div>
               <div className="text-2xl font-semibold">{bmi || "—"}</div>
-              <Badge variant="outline" className="mt-1 rounded-xl">
+              <Badge
+                variant="outline"
+                className="mt-1 rounded-xl border-emerald-300 text-emerald-700 dark:border-emerald-800 dark:text-emerald-300"
+              >
                 {bmiLabel}
               </Badge>
             </div>
@@ -191,7 +196,10 @@ export default function CalculatorPage() {
             <div className="border rounded-2xl p-3">
               <div className="text-xs text-muted-foreground">Mục tiêu</div>
               <div className="text-2xl font-semibold">{cal || "—"} kcal</div>
-              <Badge variant="secondary" className="mt-1 rounded-xl">
+              <Badge
+                variant="secondary"
+                className="mt-1 rounded-xl bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
+              >
                 {goal === "lose" ? "Giảm" : goal === "gain" ? "Tăng" : "Giữ"}
               </Badge>
             </div>
@@ -203,7 +211,7 @@ export default function CalculatorPage() {
               <div className="text-lg font-semibold">{macros.protein}g</div>
               <Progress
                 value={Math.min(100, macros.protein / 2)}
-                className="h-2 mt-1"
+                className="h-2 mt-1 bg-emerald-100 dark:bg-emerald-950/30 [&>div]:bg-emerald-600 dark:[&>div]:bg-emerald-400"
               />
             </div>
             <div className="border rounded-2xl p-3">
@@ -211,7 +219,7 @@ export default function CalculatorPage() {
               <div className="text-lg font-semibold">{macros.carbs}g</div>
               <Progress
                 value={Math.min(100, macros.carbs / 3)}
-                className="h-2 mt-1"
+                className="h-2 mt-1 bg-emerald-100 dark:bg-emerald-950/30 [&>div]:bg-emerald-600 dark:[&>div]:bg-emerald-400"
               />
             </div>
             <div className="border rounded-2xl p-3">
@@ -219,7 +227,7 @@ export default function CalculatorPage() {
               <div className="text-lg font-semibold">{macros.fat}g</div>
               <Progress
                 value={Math.min(100, macros.fat)}
-                className="h-2 mt-1"
+                className="h-2 mt-1 bg-emerald-100 dark:bg-emerald-950/30 [&>div]:bg-emerald-600 dark:[&>div]:bg-emerald-400"
               />
             </div>
           </div>
